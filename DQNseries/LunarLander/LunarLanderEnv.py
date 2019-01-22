@@ -14,7 +14,7 @@ from animation import display_frames_as_gif
 ENV = 'LunarLander-v2' # 태스크 이름
 
 MAX_STEPS = 1000
-NUM_EPISODES = 10000 # 최대 에피소드 수
+NUM_EPISODES = 1000 # 최대 에피소드 수
 
 class Environment:
     def __init__(self, Double, Dueling, PER):
@@ -95,18 +95,19 @@ class Environment:
                     
                     break
                 
-        # 그림 그리기
-        filename = "DQN_PER_%r_"%(self.PER) + datetime.datetime.now().strftime('%Y-%m-%d %H %M') + '.png'
-        directory = './SaveResult'
-        savepath = os.path.join(directory, filename)
-        #plt.figure('%d%d%d'%(self.Double, self.Dueling, self.PER))
-        plt.figure()
-        plt.xlabel('num of episode')
-        plt.ylabel('average steps')
-        plt.title('DQN with PER : %r'%(self.PER))
-        plt.grid()
-        plt.savefig(savepath)
-        plt.show()
-
-
-                
+            if episode % 50 == 1:
+                # 그림 그리기
+                filename = "DQN-PER_%r-"%(self.PER) + datetime.datetime.now().strftime('%Y%m%d-%H%M') + '.png'
+                FolderRoot = './SaveResult'
+                if not os.path.isdir('./SaveResult/DQN_PER_%r_'%(self.PER) + datetime.datetime.now().strftime('%Y%m%d-%H%M')):
+                    os.mkdir("./SaveResult/Epi_%d-PER_%r-"%(episode, self.PER) + datetime.datetime.now().strftime('%Y%m%d-%H%M'))                    
+                directory = "./SaveResult/Epi_%d-PER_%r-"%(episode, self.PER) + datetime.datetime.now().strftime('%Y%m%d-%H%M')
+                savepath = os.path.join(directory, filename)
+                #plt.figure('%d%d%d'%(self.Double, self.Dueling, self.PER))
+                plt.figure()
+                plt.scatter(self.EpiNum, self.EpiScore)
+                plt.xlabel('num of episode')
+                plt.ylabel('Score')
+                plt.title('DQN with PER : %r'%(self.PER))
+                plt.grid()
+                plt.savefig(savepath)
