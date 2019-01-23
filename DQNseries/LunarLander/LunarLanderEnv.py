@@ -13,8 +13,8 @@ from animation import display_frames_as_gif
 # 상수 정의 
 ENV = 'LunarLander-v2' # 태스크 이름
 
-MAX_STEPS = 1000
-NUM_EPISODES = 1000 # 최대 에피소드 수
+MAX_STEPS = 500
+NUM_EPISODES = 1001 # 최대 에피소드 수
 
 class Environment:
     def __init__(self, Double, Dueling, PER):
@@ -25,6 +25,8 @@ class Environment:
         self.Dueling = Dueling
         self.PER = PER
         self.agent = Agent(num_states, num_actions, Double, Dueling, PER) # 에이전트 역할을 할 객체를 생성
+
+        self.env.seed(614)
 
         self.EpiNum = []
         self.EpiScore = []
@@ -43,14 +45,13 @@ class Environment:
             
             #while not done:
             for step_num in range(MAX_STEPS):
-                self.env.render() # 렌더링 켜기
+                #self.env.render() # 렌더링 켜기
                 action = self.agent.get_action(state, episode) # 다음 행동을 결정
                 
                 # 행동 a_t를 실행해 다음 상태 s_{t+1}, reward와 done 플래그 값을 결정
                 # action에 .item()을 호출해 행동 내용을 구함
                 observation_next, reward, done, _ = self.env.step(action.item()) # reward와 info는 사용하지 않으므로 _로 처리
-                if step_num >= 999:
-                    reward -= step_num/10
+
                 score += reward # 스코어 누적
                 reward_mem = torch.FloatTensor([reward])
                 # 보상을 부여하고 episode의 종료 판정 및 state_next 를 설정
@@ -90,23 +91,24 @@ class Environment:
                         self.agent.update_td_error_memory()
 
                     # DDQN
-                    if (episode % 2 == 0):
+                    if (episode % 10 == 0):
                         self.agent.update_target_q_function()
                     
                     break
                 
             if episode % 50 == 1:
                 # 그림 그리기
-                filename = "DQN-PER_%r-"%(self.PER) + datetime.datetime.now().strftime('%Y%m%d-%H%M') + '.png'
-                FolderRoot = './SaveResult'
-                if not os.path.isdir('./SaveResult/DQN_PER_%r_'%(self.PER) + datetime.datetime.now().strftime('%Y%m%d-%H%M')):
-                    os.mkdir("./SaveResult/Epi_%d-PER_%r-"%(episode, self.PER) + datetime.datetime.now().strftime('%Y%m%d-%H%M'))                    
-                directory = "./SaveResult/Epi_%d-PER_%r-"%(episode, self.PER) + datetime.datetime.now().strftime('%Y%m%d-%H%M')
-                savepath = os.path.join(directory, filename)
+                RootFolder = './SaveResult/'
+                TodayDirectory = datetime.datetime.now().strftime('%Y%m%d')
+                if not os.path.isdir(RootFolder + TodayDirectory):
+                    os.mkdir(RootFolder + TodayDirectory)                    
+                SaveDirectory = RootFolder + TodayDirectory 
+                FileName = "Epi_%d-PER_%r-"%(episode, self.PER) + datetime.datetime.now().strftime('%H%M') + '.png'
+                savepath = os.path.join(SaveDirectory, FileName)
                 #plt.figure('%d%d%d'%(self.Double, self.Dueling, self.PER))
                 plt.figure()
-                plt.scatter(self.EpiNum, self.EpiScore)
-                plt.xlabel('num of episode')
+                plt.plot(self.EpiNum, self.EpiScore)
+                plt.xlabel('Episode')
                 plt.ylabel('Score')
                 plt.title('DQN with PER : %r'%(self.PER))
                 plt.grid()

@@ -12,15 +12,14 @@ def RunEnv(Double,Dueling,PER):
     Env = Environment(Double,Dueling,PER)
     Env.run()
 
-DQN = Process(target=RunEnv, args=(False, False, False))
+DDQN = Process(target=RunEnv, args=(True, False, False))
 
-PERDQN = Process(target=RunEnv, args=(False, False, True))
+PERDDQN = Process(target=RunEnv, args=(True, False, True))
 
 # Start
-DQN.start()
-PERDQN.start()
-
+DDQN.start()
+PERDDQN.start()
 
 # Finish
-DQN.join()
-PERDQN.join()
+DDQN.join()
+PERDDQN.join()
